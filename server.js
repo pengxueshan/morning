@@ -14,7 +14,7 @@ var app = express();
 // app.set('view engine', 'handlebars');
 
 // app.use(cloud);
-
+app.use(AV.Cloud);
 
 app.set('port', process.env.LC_APP_PORT || 3000);
 
