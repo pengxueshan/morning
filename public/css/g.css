@@ -1,0 +1,124 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'microsoft yahei';
+}
+
+.mb10 {
+    margin-bottom: 10px;
+}
+
+.wrap {
+    padding: 20px;
+}
+
+.left, .right {
+    display: inline-block;
+    vertical-align: top;
+    width: 50%;
+}
+
+.right {
+    padding: 0 0 0 20px;
+}
+
+.username {
+    width: 100%;
+    height: 30px;
+}
+
+.content {
+    resize: none;
+    width: 100%;
+    height: 421px;
+    padding: 10px;
+    vertical-align: top;
+}
+
+.summary {
+    border: 1px solid #ddd;
+    padding: 20px;
+    min-height: 471px;
+}
+
+.summary .item{
+    margin-bottom:20px;
+}
+
+.summary .u{
+    font-weight:bold;
+    margin-bottom:10px;
+}
+
+.summary .c{
+    padding-left:20px;
+}
+
+.commit {
+    height: 40px;
+    width: 100%;
+}
+
+.users{
+    position:fixed;
+    right:0;
+    bottom:0;
+    line-height:24px;
+    font-size:12px;
+    text-align:right;
+    max-height:300px;
+    overflow:hidden;
+}
+
+.users p span{
+    display:inline-block;
+    margin-bottom:5px;
+    padding:0 5px;
+    background:green;
+}
+
+.login-layer{
+    position:fixed;
+    top:0;
+    right:0;
+    bottom:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.8);
+    text-align:center;
+    display:table;
+}
+
+.login-layer .content{
+    display:table-cell;
+    vertical-align: middle;
+}
+
+.login-layer label{
+    display:block;
+    color:#fff;
+    padding:10px 0;
+}
+
+.login-layer input{
+    width:30%;
+    height:50px;
+    border:1px solid #ddd;
+    background:#fff;
+    box-sizing:border-box;
+    padding:0 10px;
+}
+
+.login-layer .btn{
+    display:block;
+    width:30%;
+    height:40px;
+    background:green;
+    text-align:center;
+    line-height:40px;
+    margin:10px auto;
+    cursor:pointer;
+    color:#fff;
+}
