@@ -31,6 +31,14 @@ app.get('/', function(req, res){
     res.end('open');
 });
 
+app.get('/getdata', function(req, res){
+     if(req.xhr || req.accepts('json,html')==='json'){
+         res.send({ success: true });
+      } else {
+         res.redirect(303, '/thank-you');
+      }
+});
+
 app.use(function(req, res){
     res.type('text/plain');
     res.status(404);
@@ -39,12 +47,4 @@ app.use(function(req, res){
 
 app.listen(app.get('port'), function(){
     console.log('app started');
-});
-
-app.get('/getdata', function(req, res){
-     if(req.xhr || req.accepts('json,html')==='json'){
-         res.send({ success: true });
-      } else {
-         res.redirect(303, '/thank-you');
-      }
 });
