@@ -39,7 +39,8 @@
 .summary {
     border: 1px solid #ddd;
     padding: 20px;
-    min-height: 471px;
+    height: 471px;
+    overflow:auto;
 }
 
 .summary .item{
@@ -60,15 +61,22 @@
     width: 100%;
 }
 
-.users{
+.userswrap{
     position:fixed;
     right:0;
     bottom:0;
     line-height:24px;
     font-size:12px;
     text-align:right;
-    max-height:300px;
+    height:300px;
     overflow:hidden;
+    width:100%;
+}
+
+.userswrap .users{
+    position:absolute;
+    bottom:0;
+    right:0;
 }
 
 .users p span{

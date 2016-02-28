@@ -51,8 +51,16 @@ io = io.listen(server);
 
 var cache = {};
 var users = [];
+var dateCache = {
+    yestoday: ''
+};
 
 io.on('connection', function(socket){
+    var today = new Date().getDay();
+    if(today !== dateCache.yestoday){
+        dateCache.yestoday = today;
+        cache = {};
+    }
     socket.on('add user', function (data) {
         if(data){
             users.push(data.username);
