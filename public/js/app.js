@@ -59,6 +59,7 @@
 
         $(document).on('click', '.login-layer .btn', function(){
             USERNAME = $('.login-layer input').val();
+            localStorage.setItem('mxdMorningUsername', USERNAME);
             socket.emit('add user', {username: USERNAME});
         });
 
@@ -66,5 +67,15 @@
             var content = $('.content').val();
             socket.emit('add summary', {id: USERNAME, content: content});
         });
+
+        (function(){
+            var username = localStorage.getItem('mxdMorningUsername');
+            console.log(username);
+            if(username){
+                $('.login-layer').hide();
+                USERNAME = username;
+                socket.emit('add user', {username: USERNAME});
+            }
+        })();
     })();
 })
