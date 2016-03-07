@@ -56,14 +56,16 @@ var dateCache = {
 };
 
 io.on('connection', function(socket){
-    var today = new Date().getDay();
+    var today = (new Date()).getDay();
     if(today !== dateCache.yestoday){
         dateCache.yestoday = today;
         cache = {};
     }
     socket.on('add user', function (data) {
         if(data){
-            users.push(data.username);
+            if(users.indexOf(data.username) == -1){
+                users.push(data.username);
+            }
             socket.emit('login', data);
             socket.emit('update sum cache', cache);
             socket.emit('update user cache', users);
