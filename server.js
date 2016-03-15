@@ -9,6 +9,7 @@ var handlebars = require('express3-handlebars').create({defaultLayout: 'main'});
 
 var http = require('http');
 var io = require('socket.io');
+var fs = require('fs');
 
 var app = express();
 app.engine('handlebars', handlebars.engine);
@@ -49,25 +50,24 @@ var server = http.createServer(app).listen(app.get('port'), function(){
 
 io = io.listen(server);
 
-var cache = {};
 var users = [];
-var dateCache = {
-    yestoday: ''
-};
+// var dateCache = {
+//     yestoday: ''
+// };
 
 io.on('connection', function(socket){
-    var today = (new Date()).getDay();
-    if(today !== dateCache.yestoday){
-        dateCache.yestoday = today;
-        cache = {};
-    }
+    // var today = (new Date()).getDay();
+    // if(today !== dateCache.yestoday){
+    //     dateCache.yestoday = today;
+    // }
     socket.on('add user', function (data) {
         if(data){
             if(users.indexOf(data.username) == -1){
                 users.push(data.username);
             }
             socket.emit('login', data);
-            socket.emit('update sum cache', cache);
+            getAllData(socket);
+            // socket.emit('update sum cache', cache);
             socket.emit('update user cache', users);
             socket.broadcast.emit('update user', data);
         }
@@ -92,14 +92,63 @@ io.on('connection', function(socket){
             }
         });
         var c = content.split('\n');
-        var ret = {
-            id: data.id,
-            content: c
-        };
-        if(id && content){
-            cache[id] = ret;
-            socket.emit('summary added', ret);
-            socket.broadcast.emit('update summary', ret);
-        }
+        saveData(id, c, socket);
+        // var ret = {
+        //     id: data.id,
+        //     content: c
+        // };
+        // if(id && content){
+        //     cache[id] = ret;
+        //     socket.emit('summary added', ret);
+        //     socket.broadcast.emit('update summary', ret);
+        // }
     });
 });
+
+var saveData = function(id, data, socket){
+    var c = data.join('\r\n');
+    fs.writeFile('./users/' + id, c, function(err){
+        if(err){
+            console.log(err);
+            return;
+        }
+        getAllData(socket);
+    });
+};
+
+var getAllData = function(socket){
+    fs.readdir('./users/', function(err, files){
+        if(err){
+            console.log(err);
+            return;
+        }
+
+        var count = files.length;
+        var ret = {};
+        files.forEach(function(filename){
+            fs.readFile('./users/' + filename, 'utf8', function(err, data){
+                ret[filename] = data;
+                console.log(data);
+                count--;
+                if(count <= 0){
+                    socket.emit('update summary', JSON.stringify(ret));
+                    socket.broadcast.emit('update summary', JSON.stringify(ret));
+                }
+            });
+        });
+    });
+};
+
+(function delFile(){
+    var time = new Date();
+    var curH = time.getHours();
+    if(curH > 21){
+        fs.readdir('./users/', function(err, files){
+            files.forEach(function(filename){
+                fs.unlinkSync('./users/' + filename);
+            });
+        });
+    }else{
+        setTimeout(delFile, 60 * 60 * 1000);
+    }
+})();
