@@ -4,6 +4,8 @@ var APP_KEY = process.env.LC_APP_KEY;
 var MASTER_KEY = process.env.LC_APP_MASTER_KEY;
 AV.initialize(APP_ID, APP_KEY, MASTER_KEY);
 
+var Post = AV.Object.extend('Post');
+
 var express = require('express');
 var handlebars = require('express3-handlebars').create({defaultLayout: 'main'});
 
@@ -107,48 +109,97 @@ io.on('connection', function(socket){
 
 var saveData = function(id, data, socket){
     var c = data.join('\r\n');
-    fs.writeFile('./users/' + id, c, function(err){
-        if(err){
-            console.log(err);
-            return;
-        }
-        getAllData(socket);
+    var post = new Post();
+    post.set('username', id);
+    post.set('content', c);
+    post.set('key', 'mxdMorning');
+    post.save().then(function(post) {
+      // 成功保存之后，执行其他逻辑.56eabb26efa6310054552e50
+      console.log('New object created with objectId: ' + post.id);
+      getAllData(socket);
+    }, function(err) {
+      // 失败之后执行其他逻辑
+      // error 是 AV.Error 的实例，包含有错误码和描述信息.
+      console.log('Failed to create new object, with error message: ' + err.message);
     });
+    // var Post = AV.Object.extend('Post');
+    // var query = new AV.Query(Post);
+
+    // // 这个 id 是要修改条目的 objectId，你在生成这个实例并成功保存时可以获取到，请看前面的文档
+    // query.get('56eabb26efa6310054552e50').then(function(post) {
+    //   // 成功，回调中可以取得这个 Post 对象的一个实例，然后就可以修改它了
+    //   post.set(id, c);
+    //   post.save();
+    // }, function(error) {
+    //   // 失败了
+    // });
+    // var file = new AV.File('./users/' + id, new Buffer(c));
+    // console.log(file);
+    // file.save().then(function(obj) {
+    //   // 数据保存成功
+    //   getAllData(socket);
+    // }, function(err) {
+    //   // 数据保存失败
+    //   console.log(err);
+    // });
+    // fs.writeFile('users/' + id, c, function(err){
+    //     if(err){
+    //         console.log(err);
+    //         return;
+    //     }
+    //     getAllData(socket);
+    // });
 };
 
 var getAllData = function(socket){
-    fs.readdir('./users/', function(err, files){
-        if(err){
-            console.log(err);
-            return;
-        }
-
-        var count = files.length;
-        var ret = {};
-        files.forEach(function(filename){
-            fs.readFile('./users/' + filename, 'utf8', function(err, data){
-                ret[filename] = data;
-                console.log(data);
-                count--;
-                if(count <= 0){
-                    socket.emit('update summary', JSON.stringify(ret));
-                    socket.broadcast.emit('update summary', JSON.stringify(ret));
-                }
-            });
-        });
+    var query = new AV.Query(Post);
+    var ret = {};
+    query.equalTo('key', 'mxdMorning');
+    query.find().then(function(results) {
+      console.log('Successfully retrieved ' + results.length + ' posts.');
+      // 处理返回的结果数据
+      for (var i = 0; i < results.length; i++) {
+        ret[results[i].get('username')] = results[i].get('content');
+        // var object = results[i];
+        // console.log(object.id + ' - ' + object.get('content'));
+      }
+      console.log(ret);
+      socket.emit('update summary', JSON.stringify(ret));
+      socket.broadcast.emit('update summary', JSON.stringify(ret));
+    }, function(error) {
+      console.log('Error: ' + error.code + ' ' + error.message);
     });
+    // fs.readdir('./users/', function(err, files){
+    //     if(err){
+    //         console.log(err);
+    //         return;
+    //     }
+
+    //     var count = files.length;
+    //     var ret = {};
+    //     files.forEach(function(filename){
+    //         fs.readFile('./users/' + filename, 'utf8', function(err, data){
+    //             ret[filename] = data;
+    //             count--;
+    //             if(count <= 0){
+    //                 socket.emit('update summary', JSON.stringify(ret));
+    //                 socket.broadcast.emit('update summary', JSON.stringify(ret));
+    //             }
+    //         });
+    //     });
+    // });
 };
 
-(function delFile(){
-    var time = new Date();
-    var curH = time.getHours();
-    if(curH > 21){
-        fs.readdir('./users/', function(err, files){
-            files.forEach(function(filename){
-                fs.unlinkSync('./users/' + filename);
-            });
-        });
-    }else{
-        setTimeout(delFile, 60 * 60 * 1000);
-    }
-})();
+// (function delFile(){
+//     var time = new Date();
+//     var curH = time.getHours();
+//     if(curH > 21){
+//         fs.readdir('./users/', function(err, files){
+//             files.forEach(function(filename){
+//                 fs.unlinkSync('./users/' + filename);
+//             });
+//         });
+//     }else{
+//         setTimeout(delFile, 60 * 60 * 1000);
+//     }
+// })();
